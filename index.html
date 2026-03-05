@@ -2,9 +2,11 @@
 <html>
 <head>
 <title>I Hate My Job</title>
+
 <style>
+
 body{
-font-family:Arial;
+font-family: Arial;
 background:#111;
 color:white;
 text-align:center;
@@ -21,6 +23,10 @@ border-radius:10px;
 cursor:pointer;
 }
 
+button:hover{
+background:#ff3333;
+}
+
 .counter{
 font-size:28px;
 margin-top:30px;
@@ -31,20 +37,44 @@ margin-top:20px;
 font-size:20px;
 color:#aaa;
 }
+
 </style>
+
 </head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<body>
+
+<h1>Bad day at work?</h1>
+
+<button onclick="press()">I HATE MY JOB TODAY</button>
+
+<div class="counter">
+People who hate their job today:
+<span id="count">0</span>
+</div>
+
+<div class="message" id="msg"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
 const supabaseClient = supabase.createClient(
 "https://sbbyowlveqsmfcfkzzju.supabase.co",
-"sbbyowlveqsmfcfkzzju"
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ"
 )
+
+const messages = [
+"This meeting could have been an email.",
+"Your boss scheduled another meeting.",
+"LinkedIn is waiting.",
+"Coffee is the only solution.",
+"At least it's not Monday forever."
+]
 
 async function loadCount(){
 
-let { data } = await supabaseClient
+const { data } = await supabaseClient
 .from('counter')
 .select('value')
 .eq('id',1)
@@ -56,7 +86,7 @@ document.getElementById("count").innerText = data.value
 
 async function press(){
 
-let { data } = await supabaseClient
+const { data } = await supabaseClient
 .from('counter')
 .select('value')
 .eq('id',1)
@@ -69,47 +99,14 @@ await supabaseClient
 .update({value:newValue})
 .eq('id',1)
 
-loadCount()
-
-}
-
-loadCount()
-
-</script>
-<body>
-
-<h1>Bad day at work?</h1>
-
-<button onclick="press()">I HATE MY JOB TODAY</button>
-
-<div class="counter">
-People who hate their job today: 
-<span id="count">0</span>
-</div>
-
-<div class="message" id="msg"></div>
-
-<script>
-
-let count = localStorage.getItem("hateCount") || 0
-document.getElementById("count").innerText = count
-
-const messages = [
-"This meeting could have been an email.",
-"Your boss scheduled another meeting.",
-"LinkedIn is waiting.",
-"Coffee is the only solution.",
-"At least it's not Monday forever."
-]
-
-function press(){
-count++
-localStorage.setItem("hateCount",count)
-document.getElementById("count").innerText = count
+document.getElementById("count").innerText = newValue
 
 let random = messages[Math.floor(Math.random()*messages.length)]
 document.getElementById("msg").innerText = random
+
 }
+
+loadCount()
 
 </script>
 

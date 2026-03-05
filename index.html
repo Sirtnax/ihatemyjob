@@ -38,6 +38,13 @@ font-size:20px;
 color:#aaa;
 }
 
+.share{
+margin-top:25px;
+font-size:16px;
+padding:10px 20px;
+background:#333;
+}
+
 </style>
 
 </head>
@@ -49,9 +56,12 @@ color:#aaa;
 <button onclick="press()">I HATE MY JOB TODAY</button>
 
 <div class="counter">
-People who hate their job today:
-<span id="count">0</span>
+🔥 <span id="count">0</span> people hate their job right now
 </div>
+
+<button class="share" onclick="share()">
+Share your suffering
+</button>
 
 <div class="message" id="msg"></div>
 
@@ -103,6 +113,14 @@ document.getElementById("count").innerText = newValue
 
 let random = messages[Math.floor(Math.random()*messages.length)]
 document.getElementById("msg").innerText = random
+
+}
+
+function share(){
+
+navigator.clipboard.writeText(window.location.href)
+
+alert("Link copied. Send to your coworkers 😈")
 
 }
 

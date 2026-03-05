@@ -106,7 +106,23 @@ document.getElementById("msg").innerText = random
 
 }
 
+// โหลดครั้งแรก
 loadCount()
+
+// refresh ทุก 2 วินาที
+setInterval(loadCount,2000)
+
+// realtime update
+supabaseClient
+.channel('counter-update')
+.on(
+'postgres_changes',
+{ event:'UPDATE', schema:'public', table:'counter' },
+payload => {
+document.getElementById("count").innerText = payload.new.value
+}
+)
+.subscribe()
 
 </script>
 

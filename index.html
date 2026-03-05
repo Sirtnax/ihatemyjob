@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>I Hate My Job</title>
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+padding-top:100px;
+}
+
+button{
+font-size:30px;
+padding:20px 40px;
+background:red;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.counter{
+font-size:28px;
+margin-top:30px;
+}
+
+.message{
+margin-top:20px;
+font-size:20px;
+color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Bad day at work?</h1>
+
+<button onclick="press()">I HATE MY JOB TODAY</button>
+
+<div class="counter">
+People who hate their job today: 
+<span id="count">0</span>
+</div>
+
+<div class="message" id="msg"></div>
+
+<script>
+
+let count = localStorage.getItem("hateCount") || 0
+document.getElementById("count").innerText = count
+
+const messages = [
+"This meeting could have been an email.",
+"Your boss scheduled another meeting.",
+"LinkedIn is waiting.",
+"Coffee is the only solution.",
+"At least it's not Monday forever."
+]
+
+function press(){
+count++
+localStorage.setItem("hateCount",count)
+document.getElementById("count").innerText = count
+
+let random = messages[Math.floor(Math.random()*messages.length)]
+document.getElementById("msg").innerText = random
+}
+
+</script>
+
+</body>
+</html>

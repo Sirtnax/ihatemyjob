@@ -33,7 +33,49 @@ color:#aaa;
 }
 </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<script>
+
+const supabaseClient = supabase.createClient(
+"https://sbbyowlveqsmfcfkzzju.supabase.co",
+"sbbyowlveqsmfcfkzzju"
+)
+
+async function loadCount(){
+
+let { data } = await supabaseClient
+.from('counter')
+.select('value')
+.eq('id',1)
+.single()
+
+document.getElementById("count").innerText = data.value
+
+}
+
+async function press(){
+
+let { data } = await supabaseClient
+.from('counter')
+.select('value')
+.eq('id',1)
+.single()
+
+let newValue = data.value + 1
+
+await supabaseClient
+.from('counter')
+.update({value:newValue})
+.eq('id',1)
+
+loadCount()
+
+}
+
+loadCount()
+
+</script>
 <body>
 
 <h1>Bad day at work?</h1>

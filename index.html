@@ -13,7 +13,6 @@
 <style>
 :root {
   --red: #ff2d2d;
-  --red-dark: #c0000d;
   --red-glow: rgba(255,45,45,0.35);
   --bg: #0d0d0d;
   --surface: #161616;
@@ -31,426 +30,280 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
   padding: 40px 20px 80px;
   overflow-x: hidden;
   position: relative;
 }
 
-/* Background noise texture */
+/* Noise texture */
 body::before {
   content: '';
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: none; z-index: 0;
 }
 
-/* Animated red pulse BG */
+/* Ambient glow */
 body::after {
   content: '';
   position: fixed;
-  width: 600px;
-  height: 600px;
+  width: 600px; height: 600px;
   background: radial-gradient(circle, rgba(255,45,45,0.08) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
   animation: breathe 4s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: none; z-index: 0;
 }
-
 @keyframes breathe {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-  50% { transform: translate(-50%,-50%) scale(1.3); opacity: 1; }
+  0%,100% { transform: translate(-50%,-50%) scale(1); opacity:.6; }
+  50%     { transform: translate(-50%,-50%) scale(1.3); opacity:1; }
 }
 
-/* ---- LAYOUT ---- */
+/* ── SCREEN SHAKE ── */
+@keyframes shake {
+  0%   { transform: translate(0,0); }
+  20%  { transform: translate(-5px,3px); }
+  40%  { transform: translate(5px,-4px); }
+  60%  { transform: translate(-4px,3px); }
+  80%  { transform: translate(3px,-2px); }
+  100% { transform: translate(0,0); }
+}
+@keyframes shakeHard {
+  0%  { transform: translate(0,0); }
+  10% { transform: translate(-11px,7px); }
+  20% { transform: translate(11px,-7px); }
+  30% { transform: translate(-9px,9px); }
+  40% { transform: translate(9px,-6px); }
+  50% { transform: translate(-7px,7px); }
+  60% { transform: translate(7px,-6px); }
+  70% { transform: translate(-5px,5px); }
+  85% { transform: translate(3px,-3px); }
+  100%{ transform: translate(0,0); }
+}
+body.shaking      { animation: shake 0.3s ease; }
+body.shaking-hard { animation: shakeHard 0.5s ease; }
+
+/* ── FLASH OVERLAY ── */
+.flash-overlay {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9998;
+  opacity: 0; transition: opacity 0.06s;
+}
+.flash-overlay.on { opacity: 1; }
+
+/* ── LAYOUT ── */
 .wrapper {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  max-width: 540px;
-  width: 100%;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  max-width: 540px; width: 100%;
 }
 
-/* ---- HEADER ---- */
+/* ── HEADER ── */
 .tagline {
   font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.25em;
-  color: var(--muted);
-  text-transform: uppercase;
+  font-size: 11px; letter-spacing: .25em;
+  color: var(--muted); text-transform: uppercase;
   margin-bottom: 16px;
 }
-
 h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(52px, 12vw, 90px);
-  line-height: 0.9;
-  text-align: center;
-  color: var(--text);
-  letter-spacing: 2px;
-  margin-bottom: 10px;
+  font-size: clamp(52px,12vw,90px);
+  line-height: .9; text-align: center;
+  letter-spacing: 2px; margin-bottom: 10px;
 }
+h1 span { color: var(--red); text-shadow: 0 0 40px var(--red-glow); }
+.sub { font-size: 14px; color: var(--muted); margin-bottom: 40px; text-align: center; }
 
-h1 span {
-  color: var(--red);
-  text-shadow: 0 0 40px var(--red-glow);
-}
-
-.sub {
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 48px;
-  text-align: center;
-}
-
-/* ---- COUNTER ---- */
-.counter-wrap {
-  margin-bottom: 48px;
-  text-align: center;
-}
-
+/* ── COUNTER ── */
+.counter-wrap { margin-bottom: 40px; text-align: center; }
 .counter-label {
   font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  font-size: 12px; letter-spacing: .2em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
 }
-
 .counter-number {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(60px, 16vw, 110px);
-  line-height: 1;
-  color: var(--red);
+  font-size: clamp(60px,16vw,110px);
+  line-height: 1; color: var(--red);
   text-shadow: 0 0 60px var(--red-glow);
-  transition: text-shadow 0.3s;
-}
-
-.counter-number.bump {
-  text-shadow: 0 0 100px var(--red-glow), 0 0 20px var(--red);
-}
-
-.counter-sub {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 6px;
-  font-family: 'DM Mono', monospace;
-}
-
-/* Today badge */
-.today-badge {
-  display: inline-block;
-  background: var(--surface2);
-  border: 1px solid #2a2a2a;
-  border-radius: 100px;
-  padding: 5px 14px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 10px;
-  letter-spacing: 0.1em;
-}
-
-.today-badge span {
-  color: #ff8c00;
-}
-
-/* Streak */
-.streak-badge {
-  display: none;
-  background: linear-gradient(135deg, #1a1a00, #2a2000);
-  border: 1px solid #3a3000;
-  border-radius: 100px;
-  padding: 5px 14px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: #ffd700;
-  margin-top: 8px;
-  letter-spacing: 0.1em;
-}
-
-/* ---- MAIN BUTTON ---- */
-.btn-hate {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 2px;
-  padding: 24px 64px;
-  background: linear-gradient(145deg, #ff3b3b, #c0000d);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 0 0 0 var(--red-glow), 0 8px 30px rgba(0,0,0,0.5);
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-
-.btn-hate::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.07), transparent);
-}
-
-.btn-hate:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 40px var(--red-glow), 0 12px 40px rgba(0,0,0,0.6);
-}
-
-.btn-hate:active {
-  transform: scale(0.96) translateY(0);
-  box-shadow: 0 0 20px var(--red-glow);
-}
-
-.btn-hate:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ---- OK BUTTON ---- */
-.btn-ok {
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  padding: 10px 24px;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid #2a2a2a;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 32px;
-}
-
-.btn-ok:hover {
-  border-color: var(--ok-green);
-  color: var(--ok-green);
-  box-shadow: 0 0 20px var(--ok-glow);
-}
-
-/* ---- MESSAGE ---- */
-.message-box {
-  min-height: 28px;
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.message-box p {
-  font-size: 15px;
-  color: var(--muted);
-  font-style: italic;
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity:0; transform: translateY(6px); }
-  to { opacity:1; transform: translateY(0); }
-}
-
-/* ---- MILESTONE ---- */
-.milestone-box {
-  display: none;
-  background: linear-gradient(135deg, #1a0000, #2a0000);
-  border: 1px solid #440000;
-  border-radius: 8px;
-  padding: 16px 24px;
-  margin-bottom: 32px;
-  text-align: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--red);
-  letter-spacing: 1px;
-  animation: fadeIn 0.5s ease;
-}
-
-/* ---- MISERY METER ---- */
-.section {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid #222;
-  border-radius: 8px;
-  padding: 20px 24px;
-  margin-bottom: 12px;
-}
-
-.section-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-
-.bar-track {
-  background: #222;
-  border-radius: 2px;
-  height: 8px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ff2d2d, #ff6b00);
-  border-radius: 2px;
-  width: 0%;
-  transition: width 1s cubic-bezier(0.4,0,0.2,1);
-}
-
-.bar-pct {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--red);
-  letter-spacing: 1px;
-}
-
-/* ---- COUNTRY ---- */
-.country-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.country-item {
-  background: var(--surface2);
-  border-radius: 6px;
-  padding: 12px 8px;
-  text-align: center;
-}
-
-.country-flag { font-size: 22px; display: block; margin-bottom: 4px; }
-
-.country-count {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  color: var(--text);
   display: block;
 }
-
-.country-name {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  text-transform: uppercase;
+@keyframes countPop {
+  0%  { transform: scale(1); }
+  35% { transform: scale(1.22); }
+  100%{ transform: scale(1); }
 }
+.counter-number.pop { animation: countPop 0.18s cubic-bezier(.36,.07,.19,.97); }
 
-/* ---- SHARE ---- */
-.share-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  margin-bottom: 12px;
-}
+.counter-sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-family: 'DM Mono', monospace; }
 
-.share-row button {
-  flex: 1;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  padding: 12px 8px;
-  background: var(--surface);
-  color: var(--muted);
-  border: 1px solid #222;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-}
-
-.share-row button:hover {
-  background: var(--surface2);
-  color: var(--text);
-  border-color: #444;
-}
-
-/* ---- FOOTER ---- */
-footer {
-  position: relative;
-  z-index: 1;
-  margin-top: 48px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  color: #333;
-  letter-spacing: 0.1em;
-  text-align: center;
-}
-
-/* ---- COOLDOWN RING ---- */
-.cooldown-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--red);
+.today-badge {
   display: inline-block;
-  margin-left: 10px;
-  vertical-align: middle;
-  opacity: 0;
-  transition: opacity 0.2s;
-  box-shadow: 0 0 6px var(--red);
+  background: var(--surface2); border: 1px solid #2a2a2a;
+  border-radius: 100px; padding: 5px 14px;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--muted); margin-top: 10px; letter-spacing: .1em;
+}
+.today-badge span { color: #ff8c00; }
+
+.streak-badge {
+  display: none;
+  background: linear-gradient(135deg,#1a1a00,#2a2000);
+  border: 1px solid #3a3000; border-radius: 100px;
+  padding: 5px 14px; font-family: 'DM Mono', monospace;
+  font-size: 11px; color: #ffd700; margin-top: 8px; letter-spacing: .1em;
 }
 
-.cooldown-indicator.active { opacity: 1; }
-
-/* ---- EXPLOSIONS ---- */
-.explosion {
-  position: fixed;
-  font-size: 24px;
+/* ── MAIN BUTTON ── */
+.btn-hate {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 2px;
+  padding: 24px 64px;
+  background: linear-gradient(145deg, #ff3b3b, #c0000d);
+  color: white; border: none; border-radius: 4px;
+  cursor: pointer;
+  /* No transition on transform — instant response */
+  transition: box-shadow 0.12s, background 0.15s;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  position: relative; overflow: hidden;
+  margin-bottom: 16px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+}
+.btn-hate::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,.1), transparent);
+}
+/* Ripple */
+.btn-hate .ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,.28);
+  transform: scale(0);
+  animation: rippleAnim .45s linear forwards;
   pointer-events: none;
-  z-index: 999;
-  animation: explodeUp 1.2s cubic-bezier(0.2,0.8,0.4,1) forwards;
+}
+@keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+.btn-hate:hover { box-shadow: 0 0 50px var(--red-glow), 0 12px 40px rgba(0,0,0,.6); }
+
+/* INSTANT press — transition:none so it snaps immediately */
+.btn-hate.pressing {
+  transform: scale(0.89) translateY(6px) !important;
+  box-shadow: 0 0 90px rgba(255,45,45,.8), 0 1px 6px rgba(0,0,0,.9) !important;
+  background: linear-gradient(145deg,#ff1a1a,#880000) !important;
+  transition: none !important;
 }
 
+/* Rage levels — button escalates visually */
+.btn-hate.rage-1 { background: linear-gradient(145deg,#ff3b3b,#cc0000); }
+.btn-hate.rage-2 { background: linear-gradient(145deg,#ff1a1a,#990000); font-size: 30px; }
+.btn-hate.rage-3 {
+  background: linear-gradient(145deg,#ff0000,#660000);
+  font-size: 32px;
+  animation: ragePulse .25s ease infinite alternate;
+}
+@keyframes ragePulse {
+  from { box-shadow: 0 0 30px rgba(255,0,0,.5); }
+  to   { box-shadow: 0 0 100px rgba(255,0,0,1), 0 0 150px rgba(255,0,0,.4); }
+}
+
+/* ── OK BUTTON ── */
+.btn-ok {
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  letter-spacing: .1em; padding: 10px 24px;
+  background: transparent; color: var(--muted);
+  border: 1px solid #2a2a2a; border-radius: 4px;
+  cursor: pointer; transition: all .2s; margin-bottom: 32px;
+}
+.btn-ok:hover { border-color: var(--ok-green); color: var(--ok-green); box-shadow: 0 0 20px var(--ok-glow); }
+
+/* ── MESSAGE ── */
+.message-box { min-height: 28px; text-align: center; margin-bottom: 40px; }
+.message-box p { font-size: 15px; color: var(--muted); font-style: italic; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── MILESTONE ── */
+.milestone-box {
+  display: none;
+  background: linear-gradient(135deg,#1a0000,#2a0000);
+  border: 1px solid #440000; border-radius: 8px;
+  padding: 16px 24px; margin-bottom: 32px; text-align: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+  color: var(--red); letter-spacing: 1px; animation: fadeIn .5s ease;
+}
+
+/* ── SECTIONS ── */
+.section {
+  width: 100%; background: var(--surface);
+  border: 1px solid #222; border-radius: 8px;
+  padding: 20px 24px; margin-bottom: 12px;
+}
+.section-label {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: .25em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 14px;
+}
+
+/* Misery bar */
+.bar-track { background: #222; border-radius: 2px; height: 8px; overflow: hidden; margin-bottom: 8px; }
+.bar-fill  { height: 100%; background: linear-gradient(90deg,#ff2d2d,#ff6b00); border-radius: 2px; width: 0%; transition: width 1s cubic-bezier(.4,0,.2,1); }
+.bar-pct   { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--red); letter-spacing: 1px; }
+
+/* Country grid */
+.country-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.country-item  { background: var(--surface2); border-radius: 6px; padding: 12px 8px; text-align: center; }
+.country-flag  { font-size: 22px; display: block; margin-bottom: 4px; }
+.country-count { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); display: block; }
+.country-name  { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .15em; color: var(--muted); text-transform: uppercase; }
+
+/* Share row */
+.share-row { display: flex; gap: 10px; width: 100%; margin-bottom: 12px; }
+.share-row button {
+  flex: 1; font-family: 'DM Mono', monospace; font-size: 11px;
+  letter-spacing: .08em; padding: 12px 8px;
+  background: var(--surface); color: var(--muted);
+  border: 1px solid #222; border-radius: 6px;
+  cursor: pointer; transition: all .2s; text-transform: uppercase;
+}
+.share-row button:hover { background: var(--surface2); color: var(--text); border-color: #444; }
+
+/* ── EXPLOSIONS ── */
+.explosion {
+  position: fixed; pointer-events: none; z-index: 999;
+  animation: explodeUp 1.2s cubic-bezier(.2,.8,.4,1) forwards;
+}
 @keyframes explodeUp {
-  0%   { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
-  60%  { opacity: 1; }
-  100% { transform: translateY(-180px) scale(1.2) rotate(20deg); opacity: 0; }
+  0%   { transform: translateY(0) scale(.4) rotate(0deg); opacity:1; }
+  60%  { opacity:1; }
+  100% { transform: translateY(-200px) scale(1.3) rotate(25deg); opacity:0; }
 }
 
-/* ---- TOAST ---- */
+/* ── TOAST ── */
 .toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
+  position: fixed; bottom: 30px; left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--surface2);
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 12px 20px;
+  background: var(--surface2); border: 1px solid #333;
+  border-radius: 6px; padding: 12px 20px;
+  font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text);
+  opacity: 0; transition: all .3s ease; z-index: 9999; white-space: nowrap;
+}
+.toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1; margin-top: 48px;
   font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0;
-  transition: all 0.3s ease;
-  z-index: 9999;
-  white-space: nowrap;
+  font-size: 10px; color: #333; letter-spacing: .1em; text-align: center;
 }
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
 </style>
 </head>
 <body>
+
+<div class="flash-overlay" id="flashOverlay"></div>
 
 <div class="wrapper">
   <p class="tagline">Global Workplace Suffering Index</p>
@@ -458,42 +311,34 @@ footer {
   <h1>I <span>HATE</span><br>MY JOB</h1>
   <p class="sub">You are not alone. Press the button.</p>
 
-  <!-- Counter -->
   <div class="counter-wrap">
     <p class="counter-label">People suffering right now</p>
-    <div class="counter-number" id="count">0</div>
+    <span class="counter-number" id="count">0</span>
     <p class="counter-sub">and counting</p>
     <div class="today-badge">Today: <span id="todayCount">0</span> presses</div>
     <div class="streak-badge" id="streakBadge">🔥 <span id="streakDays">0</span>-day streak of misery</div>
   </div>
 
-  <!-- Milestone -->
   <div class="milestone-box" id="milestoneBox"></div>
 
-  <!-- Main button -->
-  <button class="btn-hate" id="hateBtn" onclick="press()">
+  <button class="btn-hate" id="hateBtn"
+    onmousedown="pressStart(event)" onmouseup="pressEnd()"
+    ontouchstart="pressStart(event)" ontouchend="pressEnd()">
     I HATE MY JOB TODAY
-    <span class="cooldown-indicator" id="cooldownDot"></span>
   </button>
 
-  <!-- OK button -->
   <button class="btn-ok" onclick="pressOK()">
     actually… i'm okay now 🌱
   </button>
 
-  <!-- Sarcastic message -->
   <div class="message-box" id="msgBox"></div>
 
-  <!-- Misery meter -->
   <div class="section">
     <p class="section-label">🌍 Global Work Misery Level</p>
-    <div class="bar-track">
-      <div class="bar-fill" id="miseryBar"></div>
-    </div>
+    <div class="bar-track"><div class="bar-fill" id="miseryBar"></div></div>
     <div class="bar-pct" id="miseryPct">0%</div>
   </div>
 
-  <!-- Country distribution -->
   <div class="section">
     <p class="section-label">Regional Suffering</p>
     <div class="country-grid">
@@ -515,55 +360,54 @@ footer {
     </div>
   </div>
 
-  <!-- Share -->
   <div class="share-row">
     <button onclick="shareLink()">📋 Copy Link</button>
-    <button onclick="shareTwitter()">𝕏 Tweet This</button>
+    <button onclick="shareTwitter()">𝕏 Tweet</button>
     <button onclick="shareWhatsApp()">📲 WhatsApp</button>
   </div>
-
-</div><!-- /wrapper -->
+</div>
 
 <div class="toast" id="toast"></div>
-
 <footer>Press the button. Tell your coworkers. Repeat until 5pm.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const SUPABASE_URL  = "https://sbbyowlveqsmfcfkzzju.supabase.co";
-const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ";
-const COOLDOWN_MS   = 1000;  // 1 second between presses
-const REFRESH_MS    = 3000;  // fallback poll interval
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://sbbyowlveqsmfcfkzzju.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ";
+const REFRESH_MS   = 3000;
+const RAGE_WINDOW  = 2000;  // ms window to track rapid presses
+const BATCH_DELAY  = 500;   // ms to batch DB writes
 
-// ── SUPABASE SETUP ──────────────────────────────────────────────────────────
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── STATE ───────────────────────────────────────────────────────────────────
-let lastPress    = 0;
-let currentCount = 0;
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentCount   = 0;
+let rageCount      = 0;
+let rageTimer      = null;
+let pendingPresses = 0;
+let syncTimer      = null;
+let isPressingDown = false;
+const countryStats = { US:0, EU:0, ASIA:0 };
 
-const countryStats = { US: 0, EU: 0, ASIA: 0 };
-
-// ── MESSAGES ────────────────────────────────────────────────────────────────
+// ── CONTENT ───────────────────────────────────────────────────────────────────
 const messages = [
   "This meeting could have been an email.",
   "Your boss scheduled another meeting about meetings.",
-  "LinkedIn is waiting. You have 47 unread notifications.",
+  "LinkedIn is waiting. 47 unread notifications.",
   "At least the coffee is free. Probably.",
-  "Another pointless status update starting in 10 minutes.",
+  "Another pointless status update in 5 minutes.",
   "You deserve a vacation. Management disagrees.",
   "Your coworkers feel exactly the same. All of them.",
   "The printer is out of toner again.",
-  "Quarterly earnings call in 5 minutes. Attendance mandatory.",
+  "Quarterly earnings call. Attendance mandatory.",
   "Your idea was great. Your boss presented it as theirs.",
-  "Hang in there. Only 4 more hours.",
+  "Only 4 more hours. You can do this.",
   "The synergy is not optional.",
   "Time to circle back on some action items.",
   "Have you tried turning your career off and on again?",
-  "This could all be going differently.",
   "It's not you. It's the entire system.",
+  "Deep breaths. Then quit.",
 ];
 
 const okMessages = [
@@ -574,87 +418,178 @@ const okMessages = [
   "Enjoy it while it lasts.",
 ];
 
-// ── MILESTONES ──────────────────────────────────────────────────────────────
-const milestones = [
-  { at: 100,    msg: "🎉 100 PEOPLE — A meeting's worth of suffering." },
-  { at: 500,    msg: "😤 500 PEOPLE — An entire office floor." },
-  { at: 1000,   msg: "💀 1,000 PEOPLE — A small company of haters." },
-  { at: 5000,   msg: "🌎 5,000 PEOPLE — We need a union." },
-  { at: 10000,  msg: "☢️ 10,000 PEOPLE — Society is broken." },
-  { at: 50000,  msg: "🔥 50,000 PEOPLE — GENERAL STRIKE NOW." },
-  { at: 100000, msg: "👑 100K PEOPLE — We are the majority." },
+const rageMessages = [
+  "OK OK OK BREATHE 😤",
+  "WE FEEL YOU",
+  "SOMEONE'S HAVING A DAY",
+  "RAGE MODE ACTIVATED 🔥",
+  "THE PRINTER BROKE AGAIN HUH",
+  "DEEP BREATHS. THEN QUIT.",
 ];
 
-// ── SOUND (Web Audio API — no file needed) ──────────────────────────────────
-let audioCtx = null;
+const milestones = [
+  { at:100,    msg:"🎉 100 PEOPLE — A meeting's worth of suffering." },
+  { at:500,    msg:"😤 500 PEOPLE — An entire office floor." },
+  { at:1000,   msg:"💀 1,000 PEOPLE — A small company of haters." },
+  { at:5000,   msg:"🌎 5,000 PEOPLE — We need a union." },
+  { at:10000,  msg:"☢️ 10,000 PEOPLE — Society is broken." },
+  { at:50000,  msg:"🔥 50,000 — GENERAL STRIKE NOW." },
+  { at:100000, msg:"👑 100K PEOPLE — We are the majority." },
+];
 
-function playPopSound() {
+// ── AUDIO ─────────────────────────────────────────────────────────────────────
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playHit(rage = 0) {
   try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc  = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-    osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + 0.15);
+    const ctx = getAudio();
+    const now = ctx.currentTime;
+
+    // Low thump — deeper with more rage
+    const o1 = ctx.createOscillator(), g1 = ctx.createGain();
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.type = 'sine';
+    const f = Math.max(50, 95 - rage * 9);
+    o1.frequency.setValueAtTime(f * 2.6, now);
+    o1.frequency.exponentialRampToValueAtTime(f * 0.3, now + 0.2);
+    g1.gain.setValueAtTime(0.55 + rage * 0.05, now);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    o1.start(now); o1.stop(now + 0.25);
+
+    // Attack click
+    const o2 = ctx.createOscillator(), g2 = ctx.createGain();
+    o2.connect(g2); g2.connect(ctx.destination);
+    o2.type = 'square';
+    o2.frequency.setValueAtTime(1000, now);
+    o2.frequency.exponentialRampToValueAtTime(80, now + 0.04);
+    g2.gain.setValueAtTime(0.14, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    o2.start(now); o2.stop(now + 0.05);
+
+    // Noise burst
+    const len = Math.floor(ctx.sampleRate * 0.07);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const ns = ctx.createBufferSource(), ng = ctx.createGain();
+    ns.buffer = buf; ns.connect(ng); ng.connect(ctx.destination);
+    ng.gain.setValueAtTime(0.1, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+    ns.start(now);
   } catch(e) {}
 }
 
-// ── STREAK ──────────────────────────────────────────────────────────────────
-function checkStreak() {
-  const today = new Date().toDateString();
-  const lastDay = localStorage.getItem('ihatemyjob_lastday');
-  let streak = parseInt(localStorage.getItem('ihatemyjob_streak') || '0');
+// ── HAPTIC ────────────────────────────────────────────────────────────────────
+function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch(e) {} }
 
+// ── SCREEN FX ────────────────────────────────────────────────────────────────
+function shakeScreen(hard = false) {
+  const b = document.body;
+  b.classList.remove('shaking','shaking-hard');
+  void b.offsetWidth;
+  b.classList.add(hard ? 'shaking-hard' : 'shaking');
+  setTimeout(() => b.classList.remove('shaking','shaking-hard'), hard ? 500 : 300);
+}
+
+function flashScreen(intense = false) {
+  const f = document.getElementById('flashOverlay');
+  f.style.background = intense ? 'rgba(255,0,0,.32)' : 'rgba(255,30,30,.14)';
+  f.classList.add('on');
+  setTimeout(() => f.classList.remove('on'), intense ? 110 : 70);
+}
+
+// ── RIPPLE ────────────────────────────────────────────────────────────────────
+function createRipple(btn, e) {
+  const rect = btn.getBoundingClientRect();
+  const src  = e.touches ? e.touches[0] : e;
+  const size = Math.max(rect.width, rect.height) * 1.6;
+  const r    = document.createElement('span');
+  r.className = 'ripple';
+  r.style.cssText = `width:${size}px;height:${size}px;left:${src.clientX-rect.left-size/2}px;top:${src.clientY-rect.top-size/2}px`;
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 500);
+}
+
+// ── RAGE SYSTEM ───────────────────────────────────────────────────────────────
+function getRageLevel() {
+  if (rageCount >= 8) return 3;
+  if (rageCount >= 4) return 2;
+  if (rageCount >= 2) return 1;
+  return 0;
+}
+function updateRageClass() {
+  const btn = document.getElementById('hateBtn');
+  btn.classList.remove('rage-1','rage-2','rage-3');
+  const lvl = getRageLevel();
+  if (lvl > 0) btn.classList.add('rage-' + lvl);
+}
+
+// ── EXPLOSIONS ────────────────────────────────────────────────────────────────
+const E_NORMAL = ['😤','💀','😭','🤬','☕','📊','📋','🖨️','💼','🔥'];
+const E_RAGE   = ['🤬','💀','🔥','💥','😤','👊','💢','😡','⚡','🖕'];
+
+function explode(x, y, rage = 0) {
+  const pool  = rage >= 2 ? E_RAGE : E_NORMAL;
+  const count = 6 + rage * 5;
+  for (let i = 0; i < count; i++) {
+    const e = document.createElement('div');
+    e.className = 'explosion';
+    e.innerText = pool[Math.floor(Math.random() * pool.length)];
+    const spread = 70 + rage * 50;
+    e.style.left         = (x - spread/2 + Math.random()*spread) + 'px';
+    e.style.top          = (y - 20 + Math.random()*30) + 'px';
+    e.style.fontSize     = (16 + rage*4 + Math.random()*10) + 'px';
+    e.style.animationDelay = (Math.random()*.12) + 's';
+    document.body.appendChild(e);
+    setTimeout(() => e.remove(), 1500);
+  }
+}
+
+// ── STREAK & TODAY ────────────────────────────────────────────────────────────
+function checkStreak() {
+  const today   = new Date().toDateString();
+  const lastDay = localStorage.getItem('ihj_lastday');
+  let streak    = parseInt(localStorage.getItem('ihj_streak') || '0');
   if (lastDay === today) {
-    // Already counted today
+    // already logged today
   } else if (lastDay === new Date(Date.now() - 86400000).toDateString()) {
     streak++;
-    localStorage.setItem('ihatemyjob_streak', streak);
-    localStorage.setItem('ihatemyjob_lastday', today);
+    localStorage.setItem('ihj_streak', streak);
+    localStorage.setItem('ihj_lastday', today);
   } else {
     streak = 1;
-    localStorage.setItem('ihatemyjob_streak', '1');
-    localStorage.setItem('ihatemyjob_lastday', today);
+    localStorage.setItem('ihj_streak', '1');
+    localStorage.setItem('ihj_lastday', today);
   }
-
   if (streak >= 2) {
     document.getElementById('streakDays').innerText = streak;
     document.getElementById('streakBadge').style.display = 'inline-block';
   }
 }
 
-// ── TODAY COUNT ─────────────────────────────────────────────────────────────
 function incrementTodayCount() {
   const today = new Date().toDateString();
-  const storedDay = localStorage.getItem('ihatemyjob_today_date');
-  let todayCount = parseInt(localStorage.getItem('ihatemyjob_today_count') || '0');
-
-  if (storedDay !== today) {
-    todayCount = 0;
-    localStorage.setItem('ihatemyjob_today_date', today);
+  let n = parseInt(localStorage.getItem('ihj_today_count') || '0');
+  if (localStorage.getItem('ihj_today_date') !== today) {
+    n = 0;
+    localStorage.setItem('ihj_today_date', today);
   }
-
-  todayCount++;
-  localStorage.setItem('ihatemyjob_today_count', todayCount);
-  document.getElementById('todayCount').innerText = todayCount;
+  n++;
+  localStorage.setItem('ihj_today_count', n);
+  document.getElementById('todayCount').innerText = n;
 }
 
 function loadTodayCount() {
-  const today = new Date().toDateString();
-  const storedDay = localStorage.getItem('ihatemyjob_today_date');
-  if (storedDay === today) {
-    document.getElementById('todayCount').innerText =
-      localStorage.getItem('ihatemyjob_today_count') || '0';
+  if (localStorage.getItem('ihj_today_date') === new Date().toDateString()) {
+    document.getElementById('todayCount').innerText = localStorage.getItem('ihj_today_count') || '0';
   }
 }
 
-// ── REGION ──────────────────────────────────────────────────────────────────
+// ── REGION ───────────────────────────────────────────────────────────────────
 function detectRegion() {
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   if (tz.includes('America')) return 'US';
@@ -662,55 +597,54 @@ function detectRegion() {
   return 'ASIA';
 }
 
-// ── ANIMATE COUNTER ─────────────────────────────────────────────────────────
-function animateCount(newValue) {
+// ── COUNTER DISPLAY ───────────────────────────────────────────────────────────
+// ✅ OPTIMISTIC — instant update, no waiting for network
+function setCountInstant(value) {
   const el = document.getElementById('count');
-  let current = parseInt(el.innerText.replace(/,/g, '')) || 0;
-  if (current === newValue) return;
-
-  const duration = 600;
-  const start    = performance.now();
-  const from     = current;
-
-  function step(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const ease     = 1 - Math.pow(1 - progress, 3);
-    const value    = Math.round(from + (newValue - from) * ease);
-    el.innerText   = value.toLocaleString();
-    if (progress < 1) requestAnimationFrame(step);
-    else el.innerText = newValue.toLocaleString();
-  }
-
-  requestAnimationFrame(step);
-  currentCount = newValue;
-
-  // Bump glow effect
-  el.classList.add('bump');
-  setTimeout(() => el.classList.remove('bump'), 400);
+  el.innerText = value.toLocaleString();
+  currentCount = value;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  setTimeout(() => el.classList.remove('pop'), 200);
 }
 
-// ── MISERY METER ─────────────────────────────────────────────────────────────
+// Smooth animate when server syncs
+function animateCount(newValue) {
+  if (newValue <= currentCount) return;
+  const el = document.getElementById('count');
+  const from = currentCount;
+  const t0   = performance.now();
+  function step(now) {
+    const p = Math.min((now - t0) / 400, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.innerText = Math.round(from + (newValue - from) * e).toLocaleString();
+    if (p < 1) requestAnimationFrame(step);
+    else { el.innerText = newValue.toLocaleString(); currentCount = newValue; }
+  }
+  requestAnimationFrame(step);
+}
+
 function updateMisery(count) {
   const pct = Math.min(100, Math.floor(count / 100));
   document.getElementById('miseryBar').style.width = pct + '%';
-  document.getElementById('miseryPct').innerText = pct + '%';
+  document.getElementById('miseryPct').innerText   = pct + '%';
 }
 
-// ── COUNTRY DISPLAY ──────────────────────────────────────────────────────────
 function updateCountries() {
   document.getElementById('us').innerText   = countryStats.US.toLocaleString();
   document.getElementById('eu').innerText   = countryStats.EU.toLocaleString();
   document.getElementById('asia').innerText = countryStats.ASIA.toLocaleString();
 }
 
-// ── MILESTONE CHECK ──────────────────────────────────────────────────────────
-let lastMilestone = parseInt(localStorage.getItem('ihatemyjob_last_milestone') || '0');
+// ── MILESTONE ─────────────────────────────────────────────────────────────────
+let lastMilestone = parseInt(localStorage.getItem('ihj_last_milestone') || '0');
 
 function checkMilestone(count) {
   for (let i = milestones.length - 1; i >= 0; i--) {
     if (count >= milestones[i].at && milestones[i].at > lastMilestone) {
       lastMilestone = milestones[i].at;
-      localStorage.setItem('ihatemyjob_last_milestone', lastMilestone);
+      localStorage.setItem('ihj_last_milestone', lastMilestone);
       const box = document.getElementById('milestoneBox');
       box.innerText = milestones[i].msg;
       box.style.display = 'block';
@@ -720,23 +654,7 @@ function checkMilestone(count) {
   }
 }
 
-// ── EMOJI EXPLOSION ──────────────────────────────────────────────────────────
-const EMOJIS = ['😤','💀','😭','🤬','☕','📊','📋','🖨️','💼','🔥','💥','😩'];
-
-function explode(x, y) {
-  for (let i = 0; i < 8; i++) {
-    const e = document.createElement('div');
-    e.className = 'explosion';
-    e.innerText = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    e.style.left   = (x - 20 + Math.random() * 80) + 'px';
-    e.style.top    = (y - 20) + 'px';
-    e.style.animationDelay = (Math.random() * 0.2) + 's';
-    document.body.appendChild(e);
-    setTimeout(() => e.remove(), 1400);
-  }
-}
-
-// ── TOAST ────────────────────────────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(text) {
   const t = document.getElementById('toast');
   t.innerText = text;
@@ -744,115 +662,128 @@ function showToast(text) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── LOAD COUNTER ─────────────────────────────────────────────────────────────
-async function loadCount() {
-  const { data, error } = await db
-    .from('counter')
-    .select('value')
-    .eq('id', 1)
-    .single();
-
-  if (!error && data) {
-    animateCount(data.value);
-    updateMisery(data.value);
-    checkMilestone(data.value);
-  }
-}
-
-// ── PRESS BUTTON ─────────────────────────────────────────────────────────────
-async function press() {
-  const now = Date.now();
-  if (now - lastPress < COOLDOWN_MS) return;
-  lastPress = now;
-
-  // Visual cooldown dot
-  const dot = document.getElementById('cooldownDot');
-  const btn = document.getElementById('hateBtn');
-  dot.classList.add('active');
-  btn.disabled = true;
-  setTimeout(() => { dot.classList.remove('active'); btn.disabled = false; }, COOLDOWN_MS);
-
-  // Explosion at button position
-  const rect = btn.getBoundingClientRect();
-  explode(rect.left + rect.width / 2, rect.top);
-
-  // Sound
-  playPopSound();
-
-  // ✅ FIX: Atomic increment via RPC (no race condition)
-  // Requires this SQL in Supabase:
-  //   create or replace function increment_counter()
-  //   returns int language sql as $$
-  //     update counter set value = value + 1 where id = 1 returning value;
-  //   $$;
+// ── DB SYNC (batched) ─────────────────────────────────────────────────────────
+// UI updates instantly; DB write is batched to avoid per-keypress latency
+async function flushPresses() {
+  if (pendingPresses === 0) return;
+  pendingPresses = 0;
   const { data, error } = await db.rpc('increment_counter');
-
-  if (!error && data !== null) {
+  if (!error && data !== null && data > currentCount) {
     animateCount(data);
     updateMisery(data);
     checkMilestone(data);
   }
+}
 
-  // Sarcastic message
-  const msg = messages[Math.floor(Math.random() * messages.length)];
+function queueSync() {
+  pendingPresses++;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(flushPresses, BATCH_DELAY);
+}
+
+// ── PRESS EVENTS ──────────────────────────────────────────────────────────────
+function pressStart(e) {
+  e.preventDefault();
+  if (isPressingDown) return;
+  isPressingDown = true;
+
+  const btn = document.getElementById('hateBtn');
+
+  // Rage tracking
+  rageCount++;
+  clearTimeout(rageTimer);
+  rageTimer = setTimeout(() => { rageCount = 0; updateRageClass(); }, RAGE_WINDOW);
+  const rage = getRageLevel();
+  updateRageClass();
+
+  // ✅ INSTANT UI — zero delay
+  setCountInstant(currentCount + 1);
+  updateMisery(currentCount);
+  queueSync();
+
+  // Visuals
+  btn.classList.add('pressing');
+  createRipple(btn, e);
+
+  // Audio
+  playHit(rage);
+
+  // Haptic
+  if      (rage >= 3) vibrate([30,10,30]);
+  else if (rage >= 1) vibrate(20);
+  else                vibrate(12);
+
+  // Screen effects — kicks in from rage-1 up
+  if      (rage >= 3) { shakeScreen(true);  flashScreen(true); }
+  else if (rage >= 1) { shakeScreen(false); flashScreen(false); }
+
+  // Explosions
+  const rect = btn.getBoundingClientRect();
+  explode(rect.left + rect.width / 2, rect.top + rect.height / 2, rage);
+
+  // Message
   const box = document.getElementById('msgBox');
-  box.innerHTML = `<p>"${msg}"</p>`;
+  if (rage >= 2 && Math.random() < 0.55) {
+    const rm = rageMessages[Math.floor(Math.random() * rageMessages.length)];
+    box.innerHTML = `<p style="color:var(--red);font-weight:bold">"${rm}"</p>`;
+  } else {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    box.innerHTML = `<p>"${msg}"</p>`;
+  }
 
-  // Region counter
+  // Side effects
   const region = detectRegion();
   countryStats[region]++;
   updateCountries();
-
-  // Today + streak
   incrementTodayCount();
   checkStreak();
+}
+
+function pressEnd() {
+  isPressingDown = false;
+  document.getElementById('hateBtn').classList.remove('pressing');
 }
 
 // ── OK BUTTON ─────────────────────────────────────────────────────────────────
 function pressOK() {
   const msg = okMessages[Math.floor(Math.random() * okMessages.length)];
-  const box = document.getElementById('msgBox');
-  box.innerHTML = `<p style="color:var(--ok-green)">"${msg}"</p>`;
+  document.getElementById('msgBox').innerHTML = `<p style="color:var(--ok-green)">"${msg}"</p>`;
+  rageCount = 0;
+  updateRageClass();
 }
 
-// ── SHARE FUNCTIONS ───────────────────────────────────────────────────────────
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function loadCount() {
+  const { data, error } = await db.from('counter').select('value').eq('id',1).single();
+  if (!error && data) { animateCount(data.value); updateMisery(data.value); checkMilestone(data.value); }
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────────────────
 function shareLink() {
   navigator.clipboard.writeText(window.location.href)
     .then(() => showToast('📋 Link copied. Send to your coworkers 😈'))
-    .catch(() => showToast('Copy: ' + window.location.href));
+    .catch(()  => showToast(window.location.href));
 }
-
 function shareTwitter() {
-  const count = currentCount.toLocaleString();
-  const text  = `I just joined ${count} people who hate their job today 😤\n\nPress the button 👇`;
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`);
+  const txt = `I just joined ${currentCount.toLocaleString()} people who hate their job today 😤\n\nPress the button 👇`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(window.location.href)}`);
 }
-
 function shareWhatsApp() {
-  const count = currentCount.toLocaleString();
-  const text  = `${count} people hate their job right now. I'm one of them. ${window.location.href}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  const txt = `${currentCount.toLocaleString()} people hate their job right now. I'm one of them. ${window.location.href}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 loadCount();
 loadTodayCount();
-
-// Fallback polling
 setInterval(loadCount, REFRESH_MS);
 
-// Realtime sync
 db.channel('counter-channel')
   .on('postgres_changes',
-    { event: 'UPDATE', schema: 'public', table: 'counter' },
-    payload => {
-      animateCount(payload.new.value);
-      updateMisery(payload.new.value);
-      checkMilestone(payload.new.value);
-    }
+    { event:'UPDATE', schema:'public', table:'counter' },
+    p => { animateCount(p.new.value); updateMisery(p.new.value); checkMilestone(p.new.value); }
   )
   .subscribe();
 </script>
-
 </body>
 </html>

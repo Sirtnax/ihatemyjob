@@ -1,316 +1,857 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>I Hate My Job</title>
+<meta name="description" content="A global counter for people who hate their job. You're not alone.">
+<meta property="og:title" content="I Hate My Job">
+<meta property="og:description" content="Millions of us. Press the button.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-
-body{
-font-family:Arial;
-background:linear-gradient(-45deg,#111,#1b1b1b,#111);
-background-size:400% 400%;
-animation:bgmove 12s ease infinite;
-color:white;
-text-align:center;
-padding-top:120px;
+:root {
+  --red: #ff2d2d;
+  --red-dark: #c0000d;
+  --red-glow: rgba(255,45,45,0.35);
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --text: #f0f0f0;
+  --muted: #777;
+  --ok-green: #2dff8f;
+  --ok-glow: rgba(45,255,143,0.3);
 }
 
-@keyframes bgmove{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 80px;
+  overflow-x: hidden;
+  position: relative;
 }
 
-h1{
-font-size:42px;
-margin-bottom:40px;
+/* Background noise texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }
 
-button{
-font-size:28px;
-padding:22px 60px;
-background:linear-gradient(135deg,#ff3b3b,#ff0000);
-color:white;
-border:none;
-border-radius:16px;
-cursor:pointer;
-transition:all 0.15s ease;
-box-shadow:0 8px 20px rgba(0,0,0,0.3);
+/* Animated red pulse BG */
+body::after {
+  content: '';
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,45,45,0.08) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: breathe 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
-button:hover{
-transform:translateY(-3px);
-box-shadow:0 12px 25px rgba(0,0,0,0.4);
+@keyframes breathe {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%,-50%) scale(1.3); opacity: 1; }
 }
 
-button:active{
-transform:scale(0.95);
+/* ---- LAYOUT ---- */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  max-width: 540px;
+  width: 100%;
 }
 
-.counter{
-font-size:34px;
-margin-top:40px;
-animation:pulse 2s infinite;
+/* ---- HEADER ---- */
+.tagline {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.05)}
-100%{transform:scale(1)}
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 12vw, 90px);
+  line-height: 0.9;
+  text-align: center;
+  color: var(--text);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
 }
 
-.message{
-margin-top:30px;
-font-size:20px;
-color:#bbb;
+h1 span {
+  color: var(--red);
+  text-shadow: 0 0 40px var(--red-glow);
 }
 
-.share{
-margin-top:25px;
-font-size:16px;
-padding:10px 25px;
-background:#333;
-border-radius:10px;
+.sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 48px;
+  text-align: center;
 }
 
-.meter{
-margin-top:40px;
-font-size:20px;
+/* ---- COUNTER ---- */
+.counter-wrap {
+  margin-bottom: 48px;
+  text-align: center;
 }
 
-.bar{
-width:300px;
-height:14px;
-background:#333;
-margin:10px auto;
-border-radius:20px;
-overflow:hidden;
+.counter-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
-.fill{
-height:100%;
-background:#ff3b3b;
-width:0%;
-transition:width 0.6s ease;
+.counter-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(60px, 16vw, 110px);
+  line-height: 1;
+  color: var(--red);
+  text-shadow: 0 0 60px var(--red-glow);
+  transition: text-shadow 0.3s;
 }
 
-.countries{
-margin-top:40px;
-font-size:18px;
-color:#ccc;
+.counter-number.bump {
+  text-shadow: 0 0 100px var(--red-glow), 0 0 20px var(--red);
 }
 
-.explosion{
-position:fixed;
-font-size:22px;
-pointer-events:none;
-animation:explode 1s forwards;
+.counter-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-family: 'DM Mono', monospace;
 }
 
-@keyframes explode{
-0%{transform:translateY(0);opacity:1}
-100%{transform:translateY(-120px);opacity:0}
+/* Today badge */
+.today-badge {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid #2a2a2a;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 10px;
+  letter-spacing: 0.1em;
+}
+
+.today-badge span {
+  color: #ff8c00;
+}
+
+/* Streak */
+.streak-badge {
+  display: none;
+  background: linear-gradient(135deg, #1a1a00, #2a2000);
+  border: 1px solid #3a3000;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #ffd700;
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* ---- MAIN BUTTON ---- */
+.btn-hate {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  padding: 24px 64px;
+  background: linear-gradient(145deg, #ff3b3b, #c0000d);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 0 0 0 var(--red-glow), 0 8px 30px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.btn-hate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.07), transparent);
+}
+
+.btn-hate:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px var(--red-glow), 0 12px 40px rgba(0,0,0,0.6);
+}
+
+.btn-hate:active {
+  transform: scale(0.96) translateY(0);
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.btn-hate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- OK BUTTON ---- */
+.btn-ok {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 32px;
+}
+
+.btn-ok:hover {
+  border-color: var(--ok-green);
+  color: var(--ok-green);
+  box-shadow: 0 0 20px var(--ok-glow);
+}
+
+/* ---- MESSAGE ---- */
+.message-box {
+  min-height: 28px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.message-box p {
+  font-size: 15px;
+  color: var(--muted);
+  font-style: italic;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(6px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* ---- MILESTONE ---- */
+.milestone-box {
+  display: none;
+  background: linear-gradient(135deg, #1a0000, #2a0000);
+  border: 1px solid #440000;
+  border-radius: 8px;
+  padding: 16px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--red);
+  letter-spacing: 1px;
+  animation: fadeIn 0.5s ease;
+}
+
+/* ---- MISERY METER ---- */
+.section {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.bar-track {
+  background: #222;
+  border-radius: 2px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff2d2d, #ff6b00);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bar-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--red);
+  letter-spacing: 1px;
+}
+
+/* ---- COUNTRY ---- */
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.country-item {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.country-flag { font-size: 22px; display: block; margin-bottom: 4px; }
+
+.country-count {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--text);
+  display: block;
+}
+
+.country-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ---- SHARE ---- */
+.share-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.share-row button {
+  flex: 1;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 12px 8px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid #222;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.share-row button:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: #444;
+}
+
+/* ---- FOOTER ---- */
+footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 48px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #333;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* ---- COOLDOWN RING ---- */
+.cooldown-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 0 6px var(--red);
+}
+
+.cooldown-indicator.active { opacity: 1; }
+
+/* ---- EXPLOSIONS ---- */
+.explosion {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 999;
+  animation: explodeUp 1.2s cubic-bezier(0.2,0.8,0.4,1) forwards;
+}
+
+@keyframes explodeUp {
+  0%   { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+  60%  { opacity: 1; }
+  100% { transform: translateY(-180px) scale(1.2) rotate(20deg); opacity: 0; }
+}
+
+/* ---- TOAST ---- */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 </style>
 </head>
-
 <body>
 
-<h1>Bad day at work?</h1>
+<div class="wrapper">
+  <p class="tagline">Global Workplace Suffering Index</p>
 
-<button onclick="press()">I HATE MY JOB TODAY</button>
+  <h1>I <span>HATE</span><br>MY JOB</h1>
+  <p class="sub">You are not alone. Press the button.</p>
 
-<div class="counter">
-🔥 <span id="count">0</span> people hate their job right now
-</div>
+  <!-- Counter -->
+  <div class="counter-wrap">
+    <p class="counter-label">People suffering right now</p>
+    <div class="counter-number" id="count">0</div>
+    <p class="counter-sub">and counting</p>
+    <div class="today-badge">Today: <span id="todayCount">0</span> presses</div>
+    <div class="streak-badge" id="streakBadge">🔥 <span id="streakDays">0</span>-day streak of misery</div>
+  </div>
 
-<button class="share" onclick="share()">
-Share your suffering
-</button>
+  <!-- Milestone -->
+  <div class="milestone-box" id="milestoneBox"></div>
 
-<div class="message" id="msg"></div>
+  <!-- Main button -->
+  <button class="btn-hate" id="hateBtn" onclick="press()">
+    I HATE MY JOB TODAY
+    <span class="cooldown-indicator" id="cooldownDot"></span>
+  </button>
 
-<div class="meter">
-🌍 Global Work Misery Level
-<div class="bar">
-<div class="fill" id="miseryBar"></div>
-</div>
-<span id="miseryPercent">0%</span>
-</div>
+  <!-- OK button -->
+  <button class="btn-ok" onclick="pressOK()">
+    actually… i'm okay now 🌱
+  </button>
 
-<div class="countries">
-🌎 Today's misery by region
-<div id="countryList"></div>
-</div>
+  <!-- Sarcastic message -->
+  <div class="message-box" id="msgBox"></div>
+
+  <!-- Misery meter -->
+  <div class="section">
+    <p class="section-label">🌍 Global Work Misery Level</p>
+    <div class="bar-track">
+      <div class="bar-fill" id="miseryBar"></div>
+    </div>
+    <div class="bar-pct" id="miseryPct">0%</div>
+  </div>
+
+  <!-- Country distribution -->
+  <div class="section">
+    <p class="section-label">Regional Suffering</p>
+    <div class="country-grid">
+      <div class="country-item">
+        <span class="country-flag">🇺🇸</span>
+        <span class="country-count" id="us">0</span>
+        <span class="country-name">Americas</span>
+      </div>
+      <div class="country-item">
+        <span class="country-flag">🇪🇺</span>
+        <span class="country-count" id="eu">0</span>
+        <span class="country-name">Europe</span>
+      </div>
+      <div class="country-item">
+        <span class="country-flag">🌏</span>
+        <span class="country-count" id="asia">0</span>
+        <span class="country-name">Asia & Rest</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share -->
+  <div class="share-row">
+    <button onclick="shareLink()">📋 Copy Link</button>
+    <button onclick="shareTwitter()">𝕏 Tweet This</button>
+    <button onclick="shareWhatsApp()">📲 WhatsApp</button>
+  </div>
+
+</div><!-- /wrapper -->
+
+<div class="toast" id="toast"></div>
+
+<footer>Press the button. Tell your coworkers. Repeat until 5pm.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL  = "https://sbbyowlveqsmfcfkzzju.supabase.co";
+const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ";
+const COOLDOWN_MS   = 1000;  // 1 second between presses
+const REFRESH_MS    = 3000;  // fallback poll interval
 
-const supabaseClient = supabase.createClient(
-"https://sbbyowlveqsmfcfkzzju.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ"
-)
+// ── SUPABASE SETUP ──────────────────────────────────────────────────────────
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ── STATE ───────────────────────────────────────────────────────────────────
+let lastPress    = 0;
+let currentCount = 0;
+
+const countryStats = { US: 0, EU: 0, ASIA: 0 };
+
+// ── MESSAGES ────────────────────────────────────────────────────────────────
 const messages = [
-"This meeting could have been an email.",
-"Your boss scheduled another meeting.",
-"LinkedIn is waiting.",
-"Coffee is the only solution.",
-"At least it's not Monday forever.",
-"Another pointless meeting starting soon.",
-"You deserve a vacation.",
-"Your coworkers feel the same."
-]
+  "This meeting could have been an email.",
+  "Your boss scheduled another meeting about meetings.",
+  "LinkedIn is waiting. You have 47 unread notifications.",
+  "At least the coffee is free. Probably.",
+  "Another pointless status update starting in 10 minutes.",
+  "You deserve a vacation. Management disagrees.",
+  "Your coworkers feel exactly the same. All of them.",
+  "The printer is out of toner again.",
+  "Quarterly earnings call in 5 minutes. Attendance mandatory.",
+  "Your idea was great. Your boss presented it as theirs.",
+  "Hang in there. Only 4 more hours.",
+  "The synergy is not optional.",
+  "Time to circle back on some action items.",
+  "Have you tried turning your career off and on again?",
+  "This could all be going differently.",
+  "It's not you. It's the entire system.",
+];
 
-const countryStats = {
-US:0,
-EU:0,
-ASIA:0
+const okMessages = [
+  "Bold. Come back Monday.",
+  "We'll be here when you change your mind.",
+  "Short memory. Respect.",
+  "Sure. Email us when the next meeting starts.",
+  "Enjoy it while it lasts.",
+];
+
+// ── MILESTONES ──────────────────────────────────────────────────────────────
+const milestones = [
+  { at: 100,    msg: "🎉 100 PEOPLE — A meeting's worth of suffering." },
+  { at: 500,    msg: "😤 500 PEOPLE — An entire office floor." },
+  { at: 1000,   msg: "💀 1,000 PEOPLE — A small company of haters." },
+  { at: 5000,   msg: "🌎 5,000 PEOPLE — We need a union." },
+  { at: 10000,  msg: "☢️ 10,000 PEOPLE — Society is broken." },
+  { at: 50000,  msg: "🔥 50,000 PEOPLE — GENERAL STRIKE NOW." },
+  { at: 100000, msg: "👑 100K PEOPLE — We are the majority." },
+];
+
+// ── SOUND (Web Audio API — no file needed) ──────────────────────────────────
+let audioCtx = null;
+
+function playPopSound() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.15);
+  } catch(e) {}
 }
 
-function detectRegion(){
+// ── STREAK ──────────────────────────────────────────────────────────────────
+function checkStreak() {
+  const today = new Date().toDateString();
+  const lastDay = localStorage.getItem('ihatemyjob_lastday');
+  let streak = parseInt(localStorage.getItem('ihatemyjob_streak') || '0');
 
-let tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+  if (lastDay === today) {
+    // Already counted today
+  } else if (lastDay === new Date(Date.now() - 86400000).toDateString()) {
+    streak++;
+    localStorage.setItem('ihatemyjob_streak', streak);
+    localStorage.setItem('ihatemyjob_lastday', today);
+  } else {
+    streak = 1;
+    localStorage.setItem('ihatemyjob_streak', '1');
+    localStorage.setItem('ihatemyjob_lastday', today);
+  }
 
-if(tz.includes("America")) return "US"
-if(tz.includes("Europe")) return "EU"
-return "ASIA"
-
+  if (streak >= 2) {
+    document.getElementById('streakDays').innerText = streak;
+    document.getElementById('streakBadge').style.display = 'inline-block';
+  }
 }
 
-function animateCount(newValue){
+// ── TODAY COUNT ─────────────────────────────────────────────────────────────
+function incrementTodayCount() {
+  const today = new Date().toDateString();
+  const storedDay = localStorage.getItem('ihatemyjob_today_date');
+  let todayCount = parseInt(localStorage.getItem('ihatemyjob_today_count') || '0');
 
-let el = document.getElementById("count")
-let current = parseInt(el.innerText)
+  if (storedDay !== today) {
+    todayCount = 0;
+    localStorage.setItem('ihatemyjob_today_date', today);
+  }
 
-let step = Math.ceil((newValue-current)/10)
-
-let interval = setInterval(()=>{
-
-current += step
-
-if(current >= newValue){
-current = newValue
-clearInterval(interval)
+  todayCount++;
+  localStorage.setItem('ihatemyjob_today_count', todayCount);
+  document.getElementById('todayCount').innerText = todayCount;
 }
 
-el.innerText = current
-
-},20)
-
+function loadTodayCount() {
+  const today = new Date().toDateString();
+  const storedDay = localStorage.getItem('ihatemyjob_today_date');
+  if (storedDay === today) {
+    document.getElementById('todayCount').innerText =
+      localStorage.getItem('ihatemyjob_today_count') || '0';
+  }
 }
 
-function updateMisery(count){
-
-let percent = Math.min(100, Math.floor(count/10))
-
-document.getElementById("miseryBar").style.width = percent+"%"
-document.getElementById("miseryPercent").innerText = percent+"%"
-
+// ── REGION ──────────────────────────────────────────────────────────────────
+function detectRegion() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (tz.includes('America')) return 'US';
+  if (tz.includes('Europe') || tz.includes('Africa')) return 'EU';
+  return 'ASIA';
 }
 
-function updateCountries(){
+// ── ANIMATE COUNTER ─────────────────────────────────────────────────────────
+function animateCount(newValue) {
+  const el = document.getElementById('count');
+  let current = parseInt(el.innerText.replace(/,/g, '')) || 0;
+  if (current === newValue) return;
 
-let html = `
-🇺🇸 ${countryStats.US} hates<br>
-🇪🇺 ${countryStats.EU} hates<br>
-🌏 ${countryStats.ASIA} hates
-`
+  const duration = 600;
+  const start    = performance.now();
+  const from     = current;
 
-document.getElementById("countryList").innerHTML = html
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease     = 1 - Math.pow(1 - progress, 3);
+    const value    = Math.round(from + (newValue - from) * ease);
+    el.innerText   = value.toLocaleString();
+    if (progress < 1) requestAnimationFrame(step);
+    else el.innerText = newValue.toLocaleString();
+  }
 
+  requestAnimationFrame(step);
+  currentCount = newValue;
+
+  // Bump glow effect
+  el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 400);
 }
 
-function explode(){
-
-for(let i=0;i<6;i++){
-
-let e=document.createElement("div")
-e.className="explosion"
-e.innerText="💥"
-
-e.style.left=Math.random()*window.innerWidth+"px"
-e.style.top=(window.innerHeight/2)+"px"
-
-document.body.appendChild(e)
-
-setTimeout(()=>e.remove(),1000)
-
+// ── MISERY METER ─────────────────────────────────────────────────────────────
+function updateMisery(count) {
+  const pct = Math.min(100, Math.floor(count / 100));
+  document.getElementById('miseryBar').style.width = pct + '%';
+  document.getElementById('miseryPct').innerText = pct + '%';
 }
 
+// ── COUNTRY DISPLAY ──────────────────────────────────────────────────────────
+function updateCountries() {
+  document.getElementById('us').innerText   = countryStats.US.toLocaleString();
+  document.getElementById('eu').innerText   = countryStats.EU.toLocaleString();
+  document.getElementById('asia').innerText = countryStats.ASIA.toLocaleString();
 }
 
-async function loadCount(){
+// ── MILESTONE CHECK ──────────────────────────────────────────────────────────
+let lastMilestone = parseInt(localStorage.getItem('ihatemyjob_last_milestone') || '0');
 
-const { data } = await supabaseClient
-.from('counter')
-.select('value')
-.eq('id',1)
-.single()
-
-animateCount(data.value)
-updateMisery(data.value)
-
+function checkMilestone(count) {
+  for (let i = milestones.length - 1; i >= 0; i--) {
+    if (count >= milestones[i].at && milestones[i].at > lastMilestone) {
+      lastMilestone = milestones[i].at;
+      localStorage.setItem('ihatemyjob_last_milestone', lastMilestone);
+      const box = document.getElementById('milestoneBox');
+      box.innerText = milestones[i].msg;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 5000);
+      break;
+    }
+  }
 }
 
-async function press(){
+// ── EMOJI EXPLOSION ──────────────────────────────────────────────────────────
+const EMOJIS = ['😤','💀','😭','🤬','☕','📊','📋','🖨️','💼','🔥','💥','😩'];
 
-const { data } = await supabaseClient
-.from('counter')
-.select('value')
-.eq('id',1)
-.single()
-
-let newValue = data.value + 1
-
-await supabaseClient
-.from('counter')
-.update({value:newValue})
-.eq('id',1)
-
-animateCount(newValue)
-updateMisery(newValue)
-
-let random = messages[Math.floor(Math.random()*messages.length)]
-document.getElementById("msg").innerText = random
-
-let region = detectRegion()
-countryStats[region]++
-updateCountries()
-
-explode()
-
+function explode(x, y) {
+  for (let i = 0; i < 8; i++) {
+    const e = document.createElement('div');
+    e.className = 'explosion';
+    e.innerText = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    e.style.left   = (x - 20 + Math.random() * 80) + 'px';
+    e.style.top    = (y - 20) + 'px';
+    e.style.animationDelay = (Math.random() * 0.2) + 's';
+    document.body.appendChild(e);
+    setTimeout(() => e.remove(), 1400);
+  }
 }
 
-function share(){
-
-navigator.clipboard.writeText(window.location.href)
-
-alert("Link copied. Send to your coworkers 😈")
-
+// ── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(text) {
+  const t = document.getElementById('toast');
+  t.innerText = text;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// initial load
-loadCount()
+// ── LOAD COUNTER ─────────────────────────────────────────────────────────────
+async function loadCount() {
+  const { data, error } = await db
+    .from('counter')
+    .select('value')
+    .eq('id', 1)
+    .single();
 
-// fallback refresh
-setInterval(loadCount,3000)
-
-// realtime update
-supabaseClient
-.channel('counter-update')
-.on(
-'postgres_changes',
-{ event:'UPDATE', schema:'public', table:'counter' },
-payload => {
-animateCount(payload.new.value)
-updateMisery(payload.new.value)
+  if (!error && data) {
+    animateCount(data.value);
+    updateMisery(data.value);
+    checkMilestone(data.value);
+  }
 }
-)
-.subscribe()
 
+// ── PRESS BUTTON ─────────────────────────────────────────────────────────────
+async function press() {
+  const now = Date.now();
+  if (now - lastPress < COOLDOWN_MS) return;
+  lastPress = now;
+
+  // Visual cooldown dot
+  const dot = document.getElementById('cooldownDot');
+  const btn = document.getElementById('hateBtn');
+  dot.classList.add('active');
+  btn.disabled = true;
+  setTimeout(() => { dot.classList.remove('active'); btn.disabled = false; }, COOLDOWN_MS);
+
+  // Explosion at button position
+  const rect = btn.getBoundingClientRect();
+  explode(rect.left + rect.width / 2, rect.top);
+
+  // Sound
+  playPopSound();
+
+  // ✅ FIX: Atomic increment via RPC (no race condition)
+  // Requires this SQL in Supabase:
+  //   create or replace function increment_counter()
+  //   returns int language sql as $$
+  //     update counter set value = value + 1 where id = 1 returning value;
+  //   $$;
+  const { data, error } = await db.rpc('increment_counter');
+
+  if (!error && data !== null) {
+    animateCount(data);
+    updateMisery(data);
+    checkMilestone(data);
+  }
+
+  // Sarcastic message
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  const box = document.getElementById('msgBox');
+  box.innerHTML = `<p>"${msg}"</p>`;
+
+  // Region counter
+  const region = detectRegion();
+  countryStats[region]++;
+  updateCountries();
+
+  // Today + streak
+  incrementTodayCount();
+  checkStreak();
+}
+
+// ── OK BUTTON ─────────────────────────────────────────────────────────────────
+function pressOK() {
+  const msg = okMessages[Math.floor(Math.random() * okMessages.length)];
+  const box = document.getElementById('msgBox');
+  box.innerHTML = `<p style="color:var(--ok-green)">"${msg}"</p>`;
+}
+
+// ── SHARE FUNCTIONS ───────────────────────────────────────────────────────────
+function shareLink() {
+  navigator.clipboard.writeText(window.location.href)
+    .then(() => showToast('📋 Link copied. Send to your coworkers 😈'))
+    .catch(() => showToast('Copy: ' + window.location.href));
+}
+
+function shareTwitter() {
+  const count = currentCount.toLocaleString();
+  const text  = `I just joined ${count} people who hate their job today 😤\n\nPress the button 👇`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`);
+}
+
+function shareWhatsApp() {
+  const count = currentCount.toLocaleString();
+  const text  = `${count} people hate their job right now. I'm one of them. ${window.location.href}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadCount();
+loadTodayCount();
+
+// Fallback polling
+setInterval(loadCount, REFRESH_MS);
+
+// Realtime sync
+db.channel('counter-channel')
+  .on('postgres_changes',
+    { event: 'UPDATE', schema: 'public', table: 'counter' },
+    payload => {
+      animateCount(payload.new.value);
+      updateMisery(payload.new.value);
+      checkMilestone(payload.new.value);
+    }
+  )
+  .subscribe();
 </script>
 
 </body>

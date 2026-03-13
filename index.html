@@ -6,47 +6,113 @@
 <style>
 
 body{
-font-family: Arial;
-background:#111;
+font-family:Arial;
+background:linear-gradient(-45deg,#111,#1b1b1b,#111);
+background-size:400% 400%;
+animation:bgmove 12s ease infinite;
 color:white;
 text-align:center;
-padding-top:100px;
+padding-top:120px;
+}
+
+@keyframes bgmove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+h1{
+font-size:42px;
+margin-bottom:40px;
 }
 
 button{
-font-size:30px;
-padding:20px 40px;
-background:red;
+font-size:28px;
+padding:22px 60px;
+background:linear-gradient(135deg,#ff3b3b,#ff0000);
 color:white;
 border:none;
-border-radius:10px;
+border-radius:16px;
 cursor:pointer;
+transition:all 0.15s ease;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 
 button:hover{
-background:#ff3333;
+transform:translateY(-3px);
+box-shadow:0 12px 25px rgba(0,0,0,0.4);
+}
+
+button:active{
+transform:scale(0.95);
 }
 
 .counter{
-font-size:28px;
-margin-top:30px;
+font-size:34px;
+margin-top:40px;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1)}
+50%{transform:scale(1.05)}
+100%{transform:scale(1)}
 }
 
 .message{
-margin-top:20px;
+margin-top:30px;
 font-size:20px;
-color:#aaa;
+color:#bbb;
 }
 
 .share{
 margin-top:25px;
 font-size:16px;
-padding:10px 20px;
+padding:10px 25px;
 background:#333;
+border-radius:10px;
+}
+
+.meter{
+margin-top:40px;
+font-size:20px;
+}
+
+.bar{
+width:300px;
+height:14px;
+background:#333;
+margin:10px auto;
+border-radius:20px;
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+background:#ff3b3b;
+width:0%;
+transition:width 0.6s ease;
+}
+
+.countries{
+margin-top:40px;
+font-size:18px;
+color:#ccc;
+}
+
+.explosion{
+position:fixed;
+font-size:22px;
+pointer-events:none;
+animation:explode 1s forwards;
+}
+
+@keyframes explode{
+0%{transform:translateY(0);opacity:1}
+100%{transform:translateY(-120px);opacity:0}
 }
 
 </style>
-
 </head>
 
 <body>
@@ -65,13 +131,26 @@ Share your suffering
 
 <div class="message" id="msg"></div>
 
+<div class="meter">
+🌍 Global Work Misery Level
+<div class="bar">
+<div class="fill" id="miseryBar"></div>
+</div>
+<span id="miseryPercent">0%</span>
+</div>
+
+<div class="countries">
+🌎 Today's misery by region
+<div id="countryList"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
 const supabaseClient = supabase.createClient(
 "https://sbbyowlveqsmfcfkzzju.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiYnlvd2x2ZXFzbWZjZmt6emp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTYxMDEsImV4cCI6MjA4ODI5MjEwMX0.1xdofi0wI2Z3R4YtN1YBeDrn_RsKeTfX0AU1zUqhpJQ"
+"YOUR_ANON_KEY_HERE"
 )
 
 const messages = [
@@ -79,8 +158,89 @@ const messages = [
 "Your boss scheduled another meeting.",
 "LinkedIn is waiting.",
 "Coffee is the only solution.",
-"At least it's not Monday forever."
+"At least it's not Monday forever.",
+"Another pointless meeting starting soon.",
+"You deserve a vacation.",
+"Your coworkers feel the same."
 ]
+
+const countryStats = {
+US:0,
+EU:0,
+ASIA:0
+}
+
+function detectRegion(){
+
+let tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+if(tz.includes("America")) return "US"
+if(tz.includes("Europe")) return "EU"
+return "ASIA"
+
+}
+
+function animateCount(newValue){
+
+let el = document.getElementById("count")
+let current = parseInt(el.innerText)
+
+let step = Math.ceil((newValue-current)/10)
+
+let interval = setInterval(()=>{
+
+current += step
+
+if(current >= newValue){
+current = newValue
+clearInterval(interval)
+}
+
+el.innerText = current
+
+},20)
+
+}
+
+function updateMisery(count){
+
+let percent = Math.min(100, Math.floor(count/10))
+
+document.getElementById("miseryBar").style.width = percent+"%"
+document.getElementById("miseryPercent").innerText = percent+"%"
+
+}
+
+function updateCountries(){
+
+let html = `
+🇺🇸 ${countryStats.US} hates<br>
+🇪🇺 ${countryStats.EU} hates<br>
+🌏 ${countryStats.ASIA} hates
+`
+
+document.getElementById("countryList").innerHTML = html
+
+}
+
+function explode(){
+
+for(let i=0;i<6;i++){
+
+let e=document.createElement("div")
+e.className="explosion"
+e.innerText="💥"
+
+e.style.left=Math.random()*window.innerWidth+"px"
+e.style.top=(window.innerHeight/2)+"px"
+
+document.body.appendChild(e)
+
+setTimeout(()=>e.remove(),1000)
+
+}
+
+}
 
 async function loadCount(){
 
@@ -90,7 +250,8 @@ const { data } = await supabaseClient
 .eq('id',1)
 .single()
 
-document.getElementById("count").innerText = data.value
+animateCount(data.value)
+updateMisery(data.value)
 
 }
 
@@ -109,10 +270,17 @@ await supabaseClient
 .update({value:newValue})
 .eq('id',1)
 
-document.getElementById("count").innerText = newValue
+animateCount(newValue)
+updateMisery(newValue)
 
 let random = messages[Math.floor(Math.random()*messages.length)]
 document.getElementById("msg").innerText = random
+
+let region = detectRegion()
+countryStats[region]++
+updateCountries()
+
+explode()
 
 }
 
@@ -124,11 +292,11 @@ alert("Link copied. Send to your coworkers 😈")
 
 }
 
-// โหลดครั้งแรก
+// initial load
 loadCount()
 
-// refresh ทุก 2 วินาที
-setInterval(loadCount,2000)
+// fallback refresh
+setInterval(loadCount,3000)
 
 // realtime update
 supabaseClient
@@ -137,7 +305,8 @@ supabaseClient
 'postgres_changes',
 { event:'UPDATE', schema:'public', table:'counter' },
 payload => {
-document.getElementById("count").innerText = payload.new.value
+animateCount(payload.new.value)
+updateMisery(payload.new.value)
 }
 )
 .subscribe()
